@@ -1,0 +1,99 @@
+{
+  "project_info": {
+    "project_number": "602279951968",
+    "firebase_url": "https://here-flutter-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "here-flutter",
+    "storage_bucket": "here-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602279951968:android:7736f528be37a430420d05",
+        "android_client_info": {
+          "package_name": "com.wsm9175.flutter.here.here"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602279951968-14a8ri47u3lnr7oprh4h878o3ioa82us.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wsm9175.flutter.here.here",
+            "certificate_hash": "d8c75cd9886b4625b3e17f722919b528d5f652d3"
+          }
+        },
+        {
+          "client_id": "602279951968-sflrh22r1rqd2pfl5r0tprmahc9tidmb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wsm9175.flutter.here.here",
+            "certificate_hash": "0a6ddc1827cdb8398d646ed859684ff056690668"
+          }
+        },
+        {
+          "client_id": "602279951968-jnvuj5rkeeb0f6gl2g0r3b8ga705blco.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbXVIMkZC-qzU9-GZT2OYUVUN9GILM6lc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602279951968-fphp9fe7v02fh6rc3ikbhn7do8o9u79n.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "602279951968-uhs23tph6i1men06fig9krlsa1f70m7c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.wsm9175.flutter.here.here"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602279951968:android:1cc5c29bcc66430c420d05",
+        "android_client_info": {
+          "package_name": "com.wsm9175.flutter.here_admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602279951968-jnvuj5rkeeb0f6gl2g0r3b8ga705blco.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbXVIMkZC-qzU9-GZT2OYUVUN9GILM6lc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602279951968-fphp9fe7v02fh6rc3ikbhn7do8o9u79n.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "602279951968-uhs23tph6i1men06fig9krlsa1f70m7c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.wsm9175.flutter.here.here"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
