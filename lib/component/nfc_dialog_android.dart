@@ -27,7 +27,7 @@ class _AndroidSessionDialogState extends State<AndroidSessionDialog> {
       onDiscovered: (NfcTag tag) async {
         try {
           _result = widget.handleTag(tag);
-
+          print(tag.data);
           await NfcManager.instance.stopSession();
 
           setState(() => _alertMessage = "NFC 태그를 인식하였습니다.");

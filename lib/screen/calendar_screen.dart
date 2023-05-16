@@ -158,6 +158,11 @@ class _AttendanceCard extends StatelessWidget {
               '반 타입 : ${studentAttendanceInfo.classType}',
               style: textStyle,
             ),
+            const SizedBox(height: 8.0,),
+            Text(
+              '시간 : ${studentAttendanceInfo.time}',
+              style: textStyle,
+            ),
           ],
         ),
       ),

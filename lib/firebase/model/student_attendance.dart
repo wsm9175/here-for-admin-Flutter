@@ -4,6 +4,7 @@ class StudentAttendanceInfo{
   late String name;
   late String classType;
   late bool attendance;
+  late String time;
 
 
   StudentAttendanceInfo(Map<dynamic, dynamic> map, String key){
@@ -12,6 +13,7 @@ class StudentAttendanceInfo{
     name = map['name'];
     classType = map['classType'];
     attendance = map['attendance'];
+    time = map['time'];
   }
 
 }

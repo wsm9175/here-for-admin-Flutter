@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
 
-class AndroidSessionDialog extends StatefulWidget {
+class AndroidWriteSessionDialog extends StatefulWidget {
   final String alertMessage;
   final String Function(NfcTag tag) handleTag;
   final String text;
 
-  const AndroidSessionDialog(this.alertMessage, this.handleTag, this.text);
+  const AndroidWriteSessionDialog(this.alertMessage, this.handleTag, this.text);
 
 
   @override
-  State<StatefulWidget> createState() => _AndroidSessionDialogState();
+  State<StatefulWidget> createState() => _AndroidWriteSessionDialogState();
 }
 
-class _AndroidSessionDialogState extends State<AndroidSessionDialog> {
+class _AndroidWriteSessionDialogState extends State<AndroidWriteSessionDialog> {
   String? _alertMessage;
   String? _errorMessage;
 
@@ -31,7 +31,7 @@ class _AndroidSessionDialogState extends State<AndroidSessionDialog> {
 
           var ndef = Ndef.from(tag);
           if(ndef == null || !ndef.isWritable){
-            print('쓰기가 불가능합니다.');
+            setState(() => _alertMessage = "쓰기가 불가능 합니다.");
           }
 
           NdefMessage message = NdefMessage(<NdefRecord>[
@@ -41,7 +41,7 @@ class _AndroidSessionDialogState extends State<AndroidSessionDialog> {
           await ndef?.write(message);
           await NfcManager.instance.stopSession();
 
-          setState(() => _alertMessage = "NFC 태그를 인식하였습니다.");
+          setState(() => _alertMessage = "NFC 태그를 작성했습니다.");
         } catch (e) {
           await NfcManager.instance.stopSession();
 

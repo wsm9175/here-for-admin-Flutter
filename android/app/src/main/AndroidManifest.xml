@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.hardware.nfc" android:required="false" />
+    <uses-permission android:name="android.permission.Internet"/>
     <application
         android:label="here_admin"
         android:name="${applicationName}"
