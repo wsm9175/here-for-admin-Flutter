@@ -42,6 +42,12 @@ class _CalendarScreenState extends State<CalendarScreen> with  WidgetsBindingObs
 
 
   @override
+  void initState() {
+    super.initState();
+    getAttendanceData(selectedDay);
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch(state){
       case AppLifecycleState.resumed:
@@ -140,7 +146,7 @@ class _AttendanceCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              studentAttendanceInfo.attendance ? "출석" : "결석",
+              studentAttendanceInfo.attendance ? "출석" : "퇴근",
               style: textStyle,
             ),
             const SizedBox(height: 8.0,),

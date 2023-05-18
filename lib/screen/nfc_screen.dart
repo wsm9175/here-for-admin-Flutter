@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:here_admin/component/nfc_module.dart';
 import 'dart:math';
@@ -22,16 +24,19 @@ class _NfcScreenState extends State<NfcScreen> {
     final nfcModule = NfcModule();
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
+            Text('key:'),
+            SizedBox(width: 10.0,),
             Text('$random'),
-            SizedBox(
-              width: 16.0,
-            ),
-            renderButton(),
           ],
         ),
+        SizedBox(
+          width: 16.0,
+        ),
+        renderButton(),
         ElevatedButton(
           onPressed: () {
             showDialog(
@@ -59,7 +64,7 @@ class _NfcScreenState extends State<NfcScreen> {
           random = randomString;
         });
       },
-      child: Text('태그 생성'),
+      child: Text('태그 키 생성'),
     );
   }
 

@@ -52,5 +52,7 @@
     		<string>NDEF</string>
     		<string>TAG</string>
     	</array>
+    <key>NFCReaderUsageDescription</key>
+    <string>nfc 태그를 읽기 위해 필요한 권한</string>
 </dict>
 </plist>

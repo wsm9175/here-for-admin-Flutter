@@ -25,6 +25,10 @@ class _AndroidWriteSessionDialogState extends State<AndroidWriteSessionDialog> {
     super.initState();
 
     NfcManager.instance.startSession(
+      pollingOptions: {
+        NfcPollingOption.iso14443,
+        NfcPollingOption.iso15693,
+      },
       onDiscovered: (NfcTag tag) async {
         try {
           _result = widget.handleTag(tag);
