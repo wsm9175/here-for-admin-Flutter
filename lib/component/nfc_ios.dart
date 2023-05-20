@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
+import '../model/nfc_data.dart';
+
 class IosSessionScreen extends StatelessWidget {
   final handleTag;
+  final Function(String message) changeMessage;
 
   const IosSessionScreen({
     required this.handleTag,
+    required this.changeMessage,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    NfcData? _result;
+
     return Scaffold(
       body: SafeArea(
         child: StatefulBuilder(
@@ -23,9 +29,8 @@ class IosSessionScreen extends StatelessWidget {
               alertMessage: "기기를 필터 가까이에 가져다주세요.",
               onDiscovered: (NfcTag tag) async {
                 try {
-                  setState(() {
-                    handleTag(tag);
-                  });
+                  _result = handleTag(tag);
+                  changeMessage(_result!.message);
                 } catch (e) {
                   setState(() {
                     null;
@@ -33,6 +38,7 @@ class IosSessionScreen extends StatelessWidget {
                 } finally {
                   await NfcManager.instance
                       .stopSession(alertMessage: "완료되었습니다.");
+                  Navigator.of(context).pop();
                 }
               },
             );

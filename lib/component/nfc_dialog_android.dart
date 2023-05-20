@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:here_admin/model/nfc_data.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
 
 class AndroidSessionDialog extends StatefulWidget {
-  const AndroidSessionDialog(this.alertMessage, this.handleTag);
-
   final String alertMessage;
+  final NfcData Function(NfcTag tag) handleTag;
+  final Function(String message) changeKey;
 
-  final String Function(NfcTag tag) handleTag;
+  const AndroidSessionDialog(this.alertMessage, this.handleTag, this.changeKey);
+
+
 
   @override
   State<StatefulWidget> createState() => _AndroidSessionDialogState();
@@ -17,7 +20,7 @@ class _AndroidSessionDialogState extends State<AndroidSessionDialog> {
   String? _alertMessage;
   String? _errorMessage;
 
-  String? _result;
+  NfcData? _result;
 
   @override
   void initState() {
@@ -29,6 +32,7 @@ class _AndroidSessionDialogState extends State<AndroidSessionDialog> {
           _result = widget.handleTag(tag);
           print(tag.data);
           await NfcManager.instance.stopSession();
+          widget.changeKey(_result!.message);
 
           setState(() => _alertMessage = "NFC 태그를 인식하였습니다.");
         } catch (e) {

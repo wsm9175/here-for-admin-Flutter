@@ -1,10 +1,18 @@
+import 'dart:io';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:here_admin/component/date_container.dart';
+import 'package:here_admin/component/excel_module.dart';
 import 'package:here_admin/firebase/firebase_realtime_database.dart';
-import 'package:here_admin/firebase/model/print_attendance_data.dart';
+import 'package:here_admin/model/print_attendance_data.dart';
 import 'package:here_admin/firebase/model/student_attendance.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:here_admin/screen/nfc_screen.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({Key? key}) : super(key: key);
@@ -15,9 +23,10 @@ class CalendarScreen extends StatefulWidget {
 
 class _CalendarScreenState extends State<CalendarScreen>
     with WidgetsBindingObserver {
-  DateTime selectedDay = DateTime.now();
-  DateTime focusedDay = DateTime.now();
-  ValueNotifier<List<PrintAttendanceData>> valueNotifier =
+  final _excelModule = ExcelModule();
+  DateTime _selectedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
+  ValueNotifier<List<PrintAttendanceData>> _valueNotifier =
       ValueNotifier(<PrintAttendanceData>[]);
 
   FirebaseRealtimeDatabase firebaseRealtimeDatabase =
@@ -27,9 +36,15 @@ class _CalendarScreenState extends State<CalendarScreen>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        DateContainer(
-          selectDate: selectedDay,
-          onPressed: getCalendar,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            DateContainer(
+              selectDate: _selectedDay,
+              onPressed: getCalendar,
+            ),
+            ElevatedButton(onPressed: createExcel, child: Text('excel'))
+          ],
         ),
         const SizedBox(
           height: 16.0,
@@ -39,17 +54,35 @@ class _CalendarScreenState extends State<CalendarScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: Text('이름', style: TextStyle(fontSize: 20.0),)),
-              Expanded(child: Text('입실시간', style: TextStyle(fontSize: 20.0),)),
-              Expanded(child: Text('퇴실시간', style: TextStyle(fontSize: 20.0),)),
+              Expanded(
+                  child: Text(
+                '이름',
+                style: TextStyle(fontSize: 20.0),
+              )),
+              Expanded(
+                  child: Text(
+                    'class',
+                    style: TextStyle(fontSize: 20.0),
+                  )),
+              Expanded(
+                  child: Text(
+                '입실시간',
+                style: TextStyle(fontSize: 20.0),
+              )),
+              Expanded(
+                  child: Text(
+                '퇴실시간',
+                style: TextStyle(fontSize: 20.0),
+              )),
             ],
           ),
         ),
         ValueListenableBuilder(
-          valueListenable: valueNotifier,
+          valueListenable: _valueNotifier,
           builder: (BuildContext context, List<PrintAttendanceData> value,
               Widget? child) {
-            return _AttendanceDataList(printAttendanceList: valueNotifier.value);
+            return _AttendanceDataList(
+                printAttendanceList: _valueNotifier.value);
           },
         ),
       ],
@@ -59,7 +92,7 @@ class _CalendarScreenState extends State<CalendarScreen>
   @override
   void initState() {
     super.initState();
-    getAttendanceData(selectedDay);
+    getAttendanceData(_selectedDay);
   }
 
   @override
@@ -67,7 +100,7 @@ class _CalendarScreenState extends State<CalendarScreen>
     switch (state) {
       case AppLifecycleState.resumed:
         // TODO: Handle this case.
-        getAttendanceData(selectedDay);
+        getAttendanceData(_selectedDay);
       case AppLifecycleState.inactive:
       // TODO: Handle this case.
       case AppLifecycleState.paused:
@@ -80,9 +113,9 @@ class _CalendarScreenState extends State<CalendarScreen>
   getCalendar() {
     print('getCalendar');
     showCupertinoDialog(
-      context: context,
+      context: this.context,
       barrierDismissible: true,
-      builder: (BuildContext context){
+      builder: (BuildContext context) {
         return Align(
           alignment: Alignment.bottomCenter,
           child: Container(
@@ -90,7 +123,7 @@ class _CalendarScreenState extends State<CalendarScreen>
             height: 300.0,
             child: CupertinoDatePicker(
               mode: CupertinoDatePickerMode.date,
-              initialDateTime: selectedDay,
+              initialDateTime: _selectedDay,
               maximumYear: DateTime.now().year,
               maximumDate: DateTime.now(),
               onDateTimeChanged: (DateTime date) {
@@ -106,8 +139,8 @@ class _CalendarScreenState extends State<CalendarScreen>
   onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     print(selectedDay);
     setState(() {
-      this.selectedDay = selectedDay;
-      this.focusedDay = selectedDay;
+      this._selectedDay = selectedDay;
+      this._focusedDay = selectedDay;
     });
     getAttendanceData(selectedDay);
   }
@@ -127,36 +160,70 @@ class _CalendarScreenState extends State<CalendarScreen>
       dataList.add(StudentAttendanceInfo(value));
     }
 
-    Map<String, List<StudentAttendanceInfo>> printList = <String, List<StudentAttendanceInfo>>{};
+    Map<String, List<StudentAttendanceInfo>> printList =
+        <String, List<StudentAttendanceInfo>>{};
 
     for (var element in dataList) {
       List<StudentAttendanceInfo> list = <StudentAttendanceInfo>[];
       list.add(element);
-      if(printList[element.uid] == null) printList[element.uid] = list;
-      else printList[element.uid]!.add(element);
+      if (printList[element.uid] == null)
+        printList[element.uid] = list;
+      else
+        printList[element.uid]!.add(element);
     }
 
     print('printList ${printList}');
 
     List<PrintAttendanceData> attendanceDataList = <PrintAttendanceData>[];
     printList.forEach((key, value) {
-        PrintAttendanceData printAttendanceData = PrintAttendanceData();
-        printAttendanceData.uid = key;
-        for (var element in value) {
-          printAttendanceData.name = element.name;
-          if(element.attendance) printAttendanceData.AttendanceTime = element.time;
-          else printAttendanceData.LeaveTime = element.time;
-        }
+      PrintAttendanceData printAttendanceData = PrintAttendanceData();
+      printAttendanceData.uid = key;
+      for (var element in value) {
+        printAttendanceData.name = element.name;
+        printAttendanceData.classType = element.classType;
+        if (element.attendance)
+          printAttendanceData.AttendanceTime = element.time;
+        else
+          printAttendanceData.LeaveTime = element.time;
+      }
 
-        attendanceDataList.add(printAttendanceData);
+      attendanceDataList.add(printAttendanceData);
     });
 
-    valueNotifier.value = attendanceDataList;
+    _valueNotifier.value = attendanceDataList;
   }
 
   noData() {
     print('no Data');
-    valueNotifier.value = <PrintAttendanceData>[];
+    _valueNotifier.value = <PrintAttendanceData>[];
+  }
+
+  createExcel(){
+    List<PrintAttendanceData> printAttendanceDataList =  _valueNotifier.value;
+    if(printAttendanceDataList.length < 1) showToast('출력할 자료가 없습니다.');
+    else {
+      List<int>? saveFile = _excelModule.createFile(printAttendanceDataList);
+      saveExcel(saveFile);
+    }
+  }
+
+  saveExcel(List<int>? fileBytes) async {
+    PermissionStatus status = Platform.isIOS ? await Permission.storage.status : await Permission.manageExternalStorage.status;
+
+    if (status != PermissionStatus.granted) {
+      await Permission.manageExternalStorage.request();
+    }
+
+    if (status == PermissionStatus.granted) {
+      Directory directory = await getApplicationDocumentsDirectory();
+      debugPrint('directory : $directory');
+
+      File(join('${directory.path}/excel.xlsx'))
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes!);
+
+      Share.shareFiles([join('${directory.path}/excel.xlsx')], text: 'excel');
+    }
   }
 }
 
@@ -187,7 +254,7 @@ class _AttendanceDataList extends StatelessWidget {
 class _AttendanceCard extends StatelessWidget {
   final PrintAttendanceData printAttendanceData;
   final textStyle = const TextStyle(
-    fontSize: 20.0,
+    fontSize: 16.0,
   );
 
   const _AttendanceCard({
@@ -200,13 +267,19 @@ class _AttendanceCard extends StatelessWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child:Row(
+        child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: Text(
                 printAttendanceData.name,
+                style: textStyle,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                printAttendanceData.classType,
                 style: textStyle,
               ),
             ),

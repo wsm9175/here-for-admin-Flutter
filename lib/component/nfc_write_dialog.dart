@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
+import '../model/nfc_data.dart';
+
 
 class WriteSessionDialog extends StatefulWidget {
   final String alertMessage;
-  final String Function(NfcTag tag) handleTag;
+  final NfcData Function(NfcTag tag) handleTag;
   final String text;
+  final void Function(String message) registerTag;
 
-  const WriteSessionDialog(this.alertMessage, this.handleTag, this.text);
+  const WriteSessionDialog(this.alertMessage, this.handleTag, this.text, this.registerTag);
 
 
   @override
@@ -18,7 +21,7 @@ class _WriteSessionDialogState extends State<WriteSessionDialog> {
   String? _alertMessage;
   String? _errorMessage;
 
-  String? _result;
+  NfcData? _result;
 
   @override
   void initState() {
@@ -46,6 +49,7 @@ class _WriteSessionDialogState extends State<WriteSessionDialog> {
           await NfcManager.instance.stopSession();
 
           setState(() => _alertMessage = "NFC 태그를 작성했습니다.");
+          widget.registerTag(widget.text);
         } catch (e) {
           await NfcManager.instance.stopSession();
 

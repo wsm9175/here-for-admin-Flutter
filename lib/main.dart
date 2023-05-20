@@ -20,15 +20,16 @@ void main() async {
 
   runApp(MaterialApp(
     home: DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.purple,
           bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.calendar_month)),
               Tab(icon: Icon(Icons.nfc)),
-              Tab(icon: Icon(Icons.document_scanner)),
+              //Tab(icon: Icon(Icons.document_scanner)),
             ],
             indicatorColor: Colors.white,
           ),
@@ -41,7 +42,7 @@ void main() async {
               children: [
                 CalendarScreen(),
                 NfcScreen(),
-                ExcelScreen(),
+                //ExcelScreen(),
               ],
             ),
           ),

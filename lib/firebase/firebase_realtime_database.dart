@@ -41,5 +41,14 @@ class FirebaseRealtimeDatabase{
     return snapshot;
   }
 
+  Future<void> registerTag(String message) async{
+    print('register');
+    final ref = _database.ref('tagList/$message');
+    String selectDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    return await ref.set({
+      'createDate' : selectDate,
+    });
+  }
+
 }
 
