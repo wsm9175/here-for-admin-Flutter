@@ -7,8 +7,8 @@ class StudentAttendanceInfo{
   late String time;
 
 
-  StudentAttendanceInfo(Map<dynamic, dynamic> map, String key){
-    uid = key;
+  StudentAttendanceInfo(Map<dynamic, dynamic> map){
+    uid = map['studentUid'];
     phoneNumber = map['phoneNumber'];
     name = map['name'];
     classType = map['classType'];

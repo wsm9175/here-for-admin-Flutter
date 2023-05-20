@@ -41,6 +41,5 @@ class FirebaseRealtimeDatabase{
     return snapshot;
   }
 
-
 }
 

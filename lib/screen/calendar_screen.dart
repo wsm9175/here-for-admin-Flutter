@@ -1,8 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:here_admin/component/calendar.dart';
+import 'package:here_admin/component/date_container.dart';
 import 'package:here_admin/firebase/firebase_realtime_database.dart';
+import 'package:here_admin/firebase/model/print_attendance_data.dart';
 import 'package:here_admin/firebase/model/student_attendance.dart';
+import 'package:flutter/cupertino.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({Key? key}) : super(key: key);
@@ -11,35 +13,48 @@ class CalendarScreen extends StatefulWidget {
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
 
-class _CalendarScreenState extends State<CalendarScreen> with  WidgetsBindingObserver{
+class _CalendarScreenState extends State<CalendarScreen>
+    with WidgetsBindingObserver {
   DateTime selectedDay = DateTime.now();
   DateTime focusedDay = DateTime.now();
-  ValueNotifier<List<StudentAttendanceInfo>> valueNotifier =
-  ValueNotifier(<StudentAttendanceInfo>[]);
+  ValueNotifier<List<PrintAttendanceData>> valueNotifier =
+      ValueNotifier(<PrintAttendanceData>[]);
 
   FirebaseRealtimeDatabase firebaseRealtimeDatabase =
-  FirebaseRealtimeDatabase();
+      FirebaseRealtimeDatabase();
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Calendar(
-          selectedDay: selectedDay,
-          focusedDay: focusedDay,
-          onDaySelected: onDaySelected,
+        DateContainer(
+          selectDate: selectedDay,
+          onPressed: getCalendar,
+        ),
+        const SizedBox(
+          height: 16.0,
+        ),
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: Text('이름', style: TextStyle(fontSize: 20.0),)),
+              Expanded(child: Text('입실시간', style: TextStyle(fontSize: 20.0),)),
+              Expanded(child: Text('퇴실시간', style: TextStyle(fontSize: 20.0),)),
+            ],
+          ),
         ),
         ValueListenableBuilder(
           valueListenable: valueNotifier,
-          builder: (BuildContext context, List<StudentAttendanceInfo> value,
+          builder: (BuildContext context, List<PrintAttendanceData> value,
               Widget? child) {
-            return _AttendanceDataList(attendanceDataList: valueNotifier.value);
+            return _AttendanceDataList(printAttendanceList: valueNotifier.value);
           },
         ),
       ],
     );
   }
-
 
   @override
   void initState() {
@@ -49,17 +64,43 @@ class _CalendarScreenState extends State<CalendarScreen> with  WidgetsBindingObs
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch(state){
+    switch (state) {
       case AppLifecycleState.resumed:
         // TODO: Handle this case.
         getAttendanceData(selectedDay);
       case AppLifecycleState.inactive:
-        // TODO: Handle this case.
+      // TODO: Handle this case.
       case AppLifecycleState.paused:
-        // TODO: Handle this case.
+      // TODO: Handle this case.
       case AppLifecycleState.detached:
-        // TODO: Handle this case.
+      // TODO: Handle this case.
     }
+  }
+
+  getCalendar() {
+    print('getCalendar');
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context){
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            color: Colors.white,
+            height: 300.0,
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.date,
+              initialDateTime: selectedDay,
+              maximumYear: DateTime.now().year,
+              maximumDate: DateTime.now(),
+              onDateTimeChanged: (DateTime date) {
+                onDaySelected(date, date);
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   onDaySelected(DateTime selectedDay, DateTime focusedDay) {
@@ -74,16 +115,8 @@ class _CalendarScreenState extends State<CalendarScreen> with  WidgetsBindingObs
   getAttendanceData(DateTime selectedDay) {
     firebaseRealtimeDatabase
         .getAttendanceDataByDate(selectedDay)
-        .then((value) =>
-    {
-      if (value.exists) settingData(value)
-      else
-        noData()
-    })
-        .catchError((error) =>
-    {
-      noData()
-    });
+        .then((value) => {if (value.exists) settingData(value) else noData()})
+        .catchError((error) => {noData()});
   }
 
   settingData(DataSnapshot snapshot) {
@@ -91,21 +124,46 @@ class _CalendarScreenState extends State<CalendarScreen> with  WidgetsBindingObs
     List<StudentAttendanceInfo> dataList = <StudentAttendanceInfo>[];
 
     for (Map<dynamic, dynamic> value in valueList.values) {
-      dataList.add(StudentAttendanceInfo(value, snapshot.key!));
+      dataList.add(StudentAttendanceInfo(value));
     }
-    valueNotifier.value = dataList;
+
+    Map<String, List<StudentAttendanceInfo>> printList = <String, List<StudentAttendanceInfo>>{};
+
+    for (var element in dataList) {
+      List<StudentAttendanceInfo> list = <StudentAttendanceInfo>[];
+      list.add(element);
+      if(printList[element.uid] == null) printList[element.uid] = list;
+      else printList[element.uid]!.add(element);
+    }
+
+    print('printList ${printList}');
+
+    List<PrintAttendanceData> attendanceDataList = <PrintAttendanceData>[];
+    printList.forEach((key, value) {
+        PrintAttendanceData printAttendanceData = PrintAttendanceData();
+        printAttendanceData.uid = key;
+        for (var element in value) {
+          printAttendanceData.name = element.name;
+          if(element.attendance) printAttendanceData.AttendanceTime = element.time;
+          else printAttendanceData.LeaveTime = element.time;
+        }
+
+        attendanceDataList.add(printAttendanceData);
+    });
+
+    valueNotifier.value = attendanceDataList;
   }
 
   noData() {
     print('no Data');
-    valueNotifier.value = <StudentAttendanceInfo>[];
+    valueNotifier.value = <PrintAttendanceData>[];
   }
 }
 
 class _AttendanceDataList extends StatelessWidget {
-  final List<StudentAttendanceInfo> attendanceDataList;
+  final List<PrintAttendanceData> printAttendanceList;
 
-  const _AttendanceDataList({required this.attendanceDataList, Key? key})
+  const _AttendanceDataList({required this.printAttendanceList, Key? key})
       : super(key: key);
 
   @override
@@ -114,26 +172,26 @@ class _AttendanceDataList extends StatelessWidget {
       child: ListView.separated(
           itemBuilder: (context, index) {
             return _AttendanceCard(
-                studentAttendanceInfo: attendanceDataList[index]);
+                printAttendanceData: printAttendanceList[index]);
           },
           separatorBuilder: (context, index) {
             return const SizedBox(
               height: 8.0,
             );
           },
-          itemCount: attendanceDataList.length),
+          itemCount: printAttendanceList.length),
     );
   }
 }
 
 class _AttendanceCard extends StatelessWidget {
-  final StudentAttendanceInfo studentAttendanceInfo;
+  final PrintAttendanceData printAttendanceData;
   final textStyle = const TextStyle(
     fontSize: 20.0,
   );
 
   const _AttendanceCard({
-    required this.studentAttendanceInfo,
+    required this.printAttendanceData,
     Key? key,
   }) : super(key: key);
 
@@ -141,33 +199,28 @@ class _AttendanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child:Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              studentAttendanceInfo.attendance ? "출석" : "퇴근",
-              style: textStyle,
+            Expanded(
+              child: Text(
+                printAttendanceData.name,
+                style: textStyle,
+              ),
             ),
-            const SizedBox(height: 8.0,),
-            Text(
-              '전화번호 : ${studentAttendanceInfo.phoneNumber}',
-              style: textStyle,
+            Expanded(
+              child: Text(
+                printAttendanceData.AttendanceTime,
+                style: textStyle,
+              ),
             ),
-            const SizedBox(height: 8.0,),
-            Text(
-              '이름 : ${studentAttendanceInfo.name}',
-              style: textStyle,
-            ),
-            const SizedBox(height: 8.0,),
-            Text(
-              '반 타입 : ${studentAttendanceInfo.classType}',
-              style: textStyle,
-            ),
-            const SizedBox(height: 8.0,),
-            Text(
-              '시간 : ${studentAttendanceInfo.time}',
-              style: textStyle,
+            Expanded(
+              child: Text(
+                printAttendanceData.LeaveTime,
+                style: textStyle,
+              ),
             ),
           ],
         ),

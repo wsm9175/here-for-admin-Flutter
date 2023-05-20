@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
 
-class AndroidWriteSessionDialog extends StatefulWidget {
+class WriteSessionDialog extends StatefulWidget {
   final String alertMessage;
   final String Function(NfcTag tag) handleTag;
   final String text;
 
-  const AndroidWriteSessionDialog(this.alertMessage, this.handleTag, this.text);
+  const WriteSessionDialog(this.alertMessage, this.handleTag, this.text);
 
 
   @override
-  State<StatefulWidget> createState() => _AndroidWriteSessionDialogState();
+  State<StatefulWidget> createState() => _WriteSessionDialogState();
 }
 
-class _AndroidWriteSessionDialogState extends State<AndroidWriteSessionDialog> {
+class _WriteSessionDialogState extends State<WriteSessionDialog> {
   String? _alertMessage;
   String? _errorMessage;
 
