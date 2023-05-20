@@ -1,15 +1,14 @@
 import 'package:excel/excel.dart';
 import 'package:here_admin/model/print_attendance_data.dart';
-import 'package:share_plus/share_plus.dart';
-
-import '../model/excel_data.dart';
+import 'package:intl/intl.dart';
 
 //이름, class, 입실, 퇴실
 class ExcelModule{
-  List<int>? createFile(List<PrintAttendanceData> dataList){
+  List<int>? createFile(List<PrintAttendanceData> dataList, DateTime selectDate){
     var excel = Excel.createExcel();
-    Sheet sheetObject = excel['attendance_data'];
-    sheetObject.insertRowIterables(['이름', 'class', '입실시간', '퇴실시간'], 0);
+    String date = DateFormat('yyyy-MM-dd').format(selectDate);
+    Sheet sheetObject = excel[date];
+    sheetObject.insertRowIterables(['이름', 'class', '입실시간', '퇴실시간', date], 0);
 
     var rowIndex = 1;
     for(PrintAttendanceData data in dataList){

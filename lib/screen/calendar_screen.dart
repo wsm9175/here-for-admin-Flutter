@@ -61,9 +61,9 @@ class _CalendarScreenState extends State<CalendarScreen>
               )),
               Expanded(
                   child: Text(
-                    'class',
-                    style: TextStyle(fontSize: 20.0),
-                  )),
+                'class',
+                style: TextStyle(fontSize: 20.0),
+              )),
               Expanded(
                   child: Text(
                 '입실시간',
@@ -198,17 +198,20 @@ class _CalendarScreenState extends State<CalendarScreen>
     _valueNotifier.value = <PrintAttendanceData>[];
   }
 
-  createExcel(){
-    List<PrintAttendanceData> printAttendanceDataList =  _valueNotifier.value;
-    if(printAttendanceDataList.length < 1) showToast('출력할 자료가 없습니다.');
+  createExcel() {
+    List<PrintAttendanceData> printAttendanceDataList = _valueNotifier.value;
+    if (printAttendanceDataList.length < 1)
+      showToast('출력할 자료가 없습니다.');
     else {
-      List<int>? saveFile = _excelModule.createFile(printAttendanceDataList);
+      List<int>? saveFile = _excelModule.createFile(printAttendanceDataList, _selectedDay);
       saveExcel(saveFile);
     }
   }
 
   saveExcel(List<int>? fileBytes) async {
-    PermissionStatus status = Platform.isIOS ? await Permission.storage.status : await Permission.manageExternalStorage.status;
+    PermissionStatus status = Platform.isIOS
+        ? await Permission.storage.status
+        : await Permission.manageExternalStorage.status;
 
     if (status != PermissionStatus.granted) {
       await Permission.manageExternalStorage.request();
@@ -266,7 +269,7 @@ class _AttendanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 2.0),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
